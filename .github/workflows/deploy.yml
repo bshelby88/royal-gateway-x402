@@ -1,0 +1,28 @@
+name: Deploy gateway (manual, fail-closed)
+# Golden Rule: this workflow NEVER runs automatically. Production deploy of the
+# catalog gateway requires an explicit human trigger, and it verifies the
+# app name before touching anything.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_app:
+        description: 'Type the exact app name to deploy (safety gate)'
+        required: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f4f01befcfeca # v4.2.2 pinned
+      - name: Safety gate
+        run: test "${{ inputs.confirm_app }}" = "royal-gateway-x402" || { echo "APP CONFIRM MISMATCH"; exit 1; }
+      - uses: superfly/flyctl-actions@700ef8c49777735fc4d646c2c0a1f43692444ed2 # 1.5
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_ROYAL_GATEWAY }}
+        with:
+          args: deploy --remote-only --build-arg VERSION=${{ github.sha }} -a royal-gateway-x402
+      - name: Post-deploy verify
+        run: |
+          sleep 20
+          curl -sSf https://royal-gateway-x402.fly.dev/ | grep -q "0x7861db4efc14a1ed5dd8c96c528a3796560f1393" || { echo "payTo still drifted"; exit 1; }
+          curl -sSf https://royal-gateway-x402.fly.dev/ | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['platform']['total_endpoints']>=24, d; print('catalog ok', d['platform']['total_endpoints'])"

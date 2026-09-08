@@ -1,0 +1,16 @@
+name: Regenerate catalog truth (manual)
+on: workflow_dispatch
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f4f01befcfeca # v4.2.2 pinned
+      - name: Probe live services
+        run: |
+          node - <<'JS'
+          const apps=["suprapack-x402","nanobanana-x402","vault-pro-x402","royal-ruby-x402","nft-alpha-x402","royal-feel-x402","tradingagents-x402","contract-eye-x402","lingua-x402","briefsnap-x402","power-pack-x402","dispute-forge-x402","sentry-forge-x402"];
+          const {execSync}=require("child_process");
+          for (const a of apps){ try{ execSync(`curl -sSf --max-time 20 https://${a}.fly.dev/openapi.json -o /dev/null`);}catch(e){ console.error("openapi unreachable:",a);} }
+          JS
+      - name: Fail-closed note
+        run: echo "Full regeneration lives in the fleet ops scripts (paid_routes_truth_v2). This workflow is a reminder + health gate; a human merges the regenerated catalog-truth.json PR."
