@@ -1,0 +1,28 @@
+# fly.toml for royal-gateway-x402 (x402 platform catalog gateway)
+# Reconstructed 2026-09-18 to match the deployed service contract:
+# Dockerfile build, Express on :3000, HTTPS, /health checks, machines
+# auto-suspend on idle / auto-start on request (same as sibling apps).
+
+app = 'royal-gateway-x402'
+primary_region = 'dfw'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  PORT = '3000'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'suspend'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+  [[http_service.checks]]
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '30s'
+    method = 'GET'
+    path = '/health'
