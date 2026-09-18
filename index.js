@@ -5,7 +5,7 @@ const express = require("express");
 const app = express();
 
 const CATALOG = {
-  "generated_utc": "2026-09-08T04:20Z",
+  "generated_utc": "2026-09-18T03:30Z",
   "payTo": [
     "0x7861db4efc14a1ed5dd8c96c528a3796560f1393"
   ],
@@ -30,7 +30,7 @@ const CATALOG = {
           "body": {
             "goal": "string"
           },
-          "description": "Find Skill ($0.03) — semantic search over agent skill catalog"
+          "description": "Find Skill ($0.03) \u2014 semantic search over agent skill catalog"
         },
         {
           "method": "POST",
@@ -43,7 +43,7 @@ const CATALOG = {
           "body": {
             "name": "string"
           },
-          "description": "Get Skill ($0.03) — retrieve full skill content by name"
+          "description": "Get Skill ($0.03) \u2014 retrieve full skill content by name"
         },
         {
           "method": "POST",
@@ -57,7 +57,7 @@ const CATALOG = {
             "limit": "integer?",
             "category": "string?"
           },
-          "description": "List Top ($0.03) — top skills by usage or category"
+          "description": "List Top ($0.03) \u2014 top skills by usage or category"
         }
       ]
     },
@@ -122,7 +122,7 @@ const CATALOG = {
           "body": {
             "goal": "string"
           },
-          "description": "Scaffold Project ($0.05) — AI-generated Obsidian vault structure"
+          "description": "Scaffold Project ($0.05) \u2014 AI-generated Obsidian vault structure"
         },
         {
           "method": "POST",
@@ -135,7 +135,7 @@ const CATALOG = {
           "body": {
             "goal": "string"
           },
-          "description": "Scaffold Agent ($0.05) — AI-generated agent task board and workflow"
+          "description": "Scaffold Agent ($0.05) \u2014 AI-generated agent task board and workflow"
         }
       ]
     },
@@ -384,7 +384,7 @@ const CATALOG = {
           "body": {
             "_note": "see .well-known/x402 for this host"
           },
-          "description": "Explain Like I'm 5 — simplify complex text"
+          "description": "Explain Like I'm 5 \u2014 simplify complex text"
         },
         {
           "method": "POST",
@@ -477,20 +477,22 @@ const CATALOG = {
     }
   ],
   "drift_notes": {
-    "dead_or_undocumented_routes": [],
-    "price_drift": [
-      "suprapack-x402/api/find-skill: catalog claims $1.00, live challenge demands $0.03",
-      "suprapack-x402/api/get-skill: catalog claims $0.50, live challenge demands $0.03",
-      "suprapack-x402/api/list-top: catalog claims $0.50, live challenge demands $0.03",
-      "nanobanana-x402/api/generate-image: catalog claims $2.00, live challenge demands $0.01",
-      "nanobanana-x402/api/edit-image: catalog claims $2.00, live challenge demands $0.01",
-      "vault-pro-x402/api/scaffold-project: catalog claims $1.00, live challenge demands $0.05",
-      "vault-pro-x402/api/scaffold-agent: catalog claims $1.00, live challenge demands $0.05",
-      "royal-ruby-x402/api/law-lookup: catalog claims $1.00, live challenge demands $0.05",
-      "nft-alpha-x402/api/nft-signal: catalog claims $2.00, live challenge demands $0.02",
-      "tradingagents-x402/api/analyze-ticker: catalog claims $5.00, live challenge demands $0.05",
-      "contract-eye-x402/api/analyze-contract: catalog claims $5.00, live challenge demands $0.05",
-      "power-pack-x402/api/score-email: catalog claims $1.00, live challenge demands $0.01"
+    "last_verification": {
+      "utc": "2026-09-18T03:30Z",
+      "method": "live 402-challenge decode, all 24 endpoints",
+      "result": "24/24 correct network eip155:8453 + canonical payTo + catalog price; 0 drift",
+      "price_drift_entries_retired": 12
+    },
+    "payment_semantics": {
+      "note": "400/404 pre-payment on invalid schema is intentional and NOT a leak (buyer never charged); confirmed tradingagents x2, suprapack get-skill.",
+      "verified": "2026-09-18"
+    },
+    "removed_stale_entries": [
+      {
+        "url": "https://rae-monetization-gateway.fly.dev",
+        "reason": "GET /healthz is free, non-catalog product gateway",
+        "removed": "2026-09-18"
+      }
     ]
   }
 };
