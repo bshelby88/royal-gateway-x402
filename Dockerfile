@@ -2,6 +2,6 @@ FROM node:22-alpine
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --omit=dev
-COPY index.js catalog-truth.json ./
+COPY index.js public-discovery.js catalog-truth.json ./
 EXPOSE 3000
 CMD ["node", "index.js"]

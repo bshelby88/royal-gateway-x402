@@ -622,6 +622,14 @@ function platformManifest() {
 }
 app.get("/.well-known/x402", (_q,res)=>res.json(platformManifest()));
 app.get("/.well-known/x402.json", (_q,res)=>res.json(platformManifest()));
+// EXEC-22: /x402.json alias at the discoverable root path (same manifest).
+app.get("/x402.json", (_q,res)=>res.json(platformManifest()));
+// EXEC-22: machine-readable surfaces generated from the same catalog source.
+require("./public-discovery").registerPublicDiscovery(app, {
+  baseUrl: "https://royal-gateway-x402.fly.dev",
+  PLATFORM,
+  SERVICES,
+});
 app.get("/docs", (_q,res)=>{ const paths={}; for (const svc of SERVICES) for (const ep of svc.endpoints) { const u=`${svc.url}${ep.path}`; paths[u]={[ep.method.toLowerCase()]:{summary:ep.description,service:svc.name,category:svc.category,price:ep.price,payment:"x402 USDC on Base",payTo:ep.payTo,requestBody:ep.body}}; } res.json({openapi:"3.0.0",info:{title:"Royal Agentic Enterprises — x402 API Platform",version:"2.0.0",description:PLATFORM.tagline,contact:{email:PLATFORM.contact}},servers:SERVICES.map((s)=>({url:s.url,description:s.name})),paths}); });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`royal-gateway-x402 on :${PORT} — ${SERVICES.length} services, ${PLATFORM.total_endpoints} endpoints, payTo ${PAY_TO.join(',')}`));
