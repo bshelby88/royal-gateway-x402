@@ -5,7 +5,7 @@ const express = require("express");
 const app = express();
 
 const CATALOG = {
-  "generated_utc": "2026-09-18T03:30Z",
+  "generated_utc": "2026-09-18T04:20Z",
   "payTo": [
     "0x7861db4efc14a1ed5dd8c96c528a3796560f1393"
   ],
@@ -472,6 +472,85 @@ const CATALOG = {
             "_note": "see .well-known/x402 for this host"
           },
           "description": "Generate an 8-file consumer-debt dispute pack from a collector letter, original contract, and customer narrative"
+        }
+      ]
+    },
+    {
+      "name": "Dispatch Router",
+      "slug": "dispatch",
+      "url": "https://dispatch-x402.fly.dev",
+      "category": "Platform / Routing",
+      "description": "Paid routing layer for the agent-commerce fleet. One natural-language intent in, the right paid service + params out.",
+      "openapi": "https://dispatch-x402.fly.dev/openapi.json",
+      "wellknown": "https://dispatch-x402.fly.dev/.well-known/x402",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/dispatch",
+          "price": "$0.50",
+          "amount_atoms": "500000",
+          "network": "eip155:8453",
+          "payTo": "0x7861db4efc14a1ed5dd8c96c528a3796560f1393",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "body": {
+            "intent": "string (min 2 chars)",
+            "params": "object? \u2013 optional downstream params"
+          },
+          "description": {
+            "_note": "free companion routes: GET /api/services, POST /classify"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agent Escrow",
+      "slug": "escrow",
+      "url": "https://escrow-x402.fly.dev",
+      "category": "Platform / Payments",
+      "description": "Agent-to-agent USDC escrow on Base mainnet. 1% fee on release, timeout-refundable.",
+      "openapi": "https://escrow-x402.fly.dev/openapi.json",
+      "wellknown": "https://escrow-x402.fly.dev/.well-known/x402",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/escrow/create",
+          "price": "$0.05",
+          "amount_atoms": "50000",
+          "network": "eip155:8453",
+          "payTo": "0x7861db4efc14a1ed5dd8c96c528a3796560f1393",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "body": {
+            "agentB": "string (0x wallet)",
+            "amountUsdc": "number",
+            "task": "string",
+            "timeoutHours": "number? (default 24)"
+          },
+          "description": {}
+        }
+      ]
+    },
+    {
+      "name": "OpenSea Collection Data",
+      "slug": "opensea-data",
+      "url": "https://opensea-data-x402.fly.dev",
+      "category": "Marketplace Data",
+      "description": "Query OpenSea collection data: floor price, listings, offers, and traits for any collection slug.",
+      "openapi": "https://opensea-data-x402.fly.dev/openapi.json",
+      "wellknown": "https://opensea-data-x402.fly.dev/.well-known/x402",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api",
+          "price": "$0.01",
+          "amount_atoms": "10000",
+          "network": "eip155:8453",
+          "payTo": "0x7861db4efc14a1ed5dd8c96c528a3796560f1393",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "body": {
+            "collection": "string (slug e.g. boredapeyachtclub)",
+            "action": "string enum floor|listings|offers|traits"
+          },
+          "description": {}
         }
       ]
     }
