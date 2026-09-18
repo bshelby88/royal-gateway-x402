@@ -514,9 +514,33 @@ const PLATFORM = {
   categories: [...new Set(SERVICES.map((s)=>s.category))].sort(),
 };
 app.get("/health", (_q,res)=>res.json({status:"ok",service:"royal-gateway-x402",services:SERVICES.length,endpoints:PLATFORM.total_endpoints}));
-app.get("/", (_q,res)=>res.json({platform:PLATFORM,how_it_works:{step_1:"Pick a service and endpoint from the catalog below",step_2:"POST to the endpoint — you get HTTP 402 with a payment spec header",step_3:"Sign a USDC payment on Base using x402",step_4:"Resend with the payment header — get your result instantly",note:"AI agents with x402 wallets handle steps 2-4 automatically."},quickstart:{description:"Example: search Claude Code skills",curl:'curl -X POST https://suprapack-x402.fly.dev/api/find-skill -H "Content-Type: application/json" -d ' + "'" + '{"query":"stripe webhook"}' + "'" + "',response:"HTTP 402 with payment-required header; pay with any x402-compatible wallet."},links:{x402_protocol:"https://x402.org",x402_docs:"https://docs.cdp.coinbase.com/x402/welcome",x402_npm:"https://www.npmjs.com/package/@x402/express",bazaar:"https://x402.org/ecosystem"},services:SERVICES}));
+app.get("/", (_q,res)=>res.json({platform:PLATFORM,how_it_works:{step_1:"Pick a service and endpoint from the catalog below",step_2:"POST to the endpoint — you get HTTP 402 with a payment spec header",step_3:"Sign a USDC payment on Base using x402",step_4:"Resend with the payment header — get your result instantly",note:"AI agents with x402 wallets handle steps 2-4 automatically."},quickstart:{description:"Example: search Claude Code skills",curl:"curl -X POST https://suprapack-x402.fly.dev/api/find-skill -H 'Content-Type: application/json' -d '{\"query\":\"stripe webhook\"}'",response:'HTTP 402 with payment-required header; pay with any x402-compatible wallet.'},links:{x402_protocol:"https://x402.org",x402_docs:"https://docs.cdp.coinbase.com/x402/welcome",x402_npm:"https://www.npmjs.com/package/@x402/express",bazaar:"https://x402.org/ecosystem"},services:SERVICES}));
 app.get("/services", async (_q,res)=>{ const results = await Promise.all(SERVICES.map(async (svc)=>{ let status="unknown"; try { const c=new AbortController(); const t=setTimeout(()=>c.abort(),5000); const r=await fetch(`${svc.url}/health`,{signal:c.signal}); clearTimeout(t); status=r.ok?"healthy":`error:${r.status}`; } catch { status="unreachable"; } return {...svc,status}; })); res.json({ok:true,services:results,checked_at:new Date().toISOString()}); });
 app.get("/categories", (_q,res)=>{ const cats={}; for (const svc of SERVICES){ (cats[svc.category]=cats[svc.category]||[]).push({name:svc.name,url:svc.url,endpoints:svc.endpoints.length}); } res.json({ok:true,categories:cats}); });
+// x402 v2 platform-level discovery manifest: every paid endpoint in the catalog,
+// keyed by absolute URL. Source: catalog-truth.json (regenerated 2026-09-08 from
+// live 402 challenges + live OpenAPI). known_drift preserves catalog-vs-challenge gaps.
+function platformManifest() {
+  const endpoints = {};
+  for (const svc of SERVICES) for (const ep of svc.endpoints) {
+    endpoints[`${svc.url}${ep.path}`] = {
+      method: ep.method,
+      accepts: { scheme: "exact", price: ep.price, network: ep.network, payTo: ep.payTo,
+                 asset: ep.asset, extra: { service: svc.slug, category: svc.category } },
+      description: ep.description,
+      mimeType: "application/json",
+    };
+  }
+  return {
+    version: "2.0.0",
+    service: { name: "royal-gateway-x402", description: "Royal Agentic Enterprises x402 platform catalog — all paid endpoints across every service in one machine-readable manifest.", contact: "jadedfocus@gmail.com", operator: "Royal Agentic Enterprises", homepage: "https://royal-gateway-x402.fly.dev/" },
+    generated_from: CATALOG.generated_utc,
+    known_drift: CATALOG.drift_notes ?? {},
+    endpoints,
+  };
+}
+app.get("/.well-known/x402", (_q,res)=>res.json(platformManifest()));
+app.get("/.well-known/x402.json", (_q,res)=>res.json(platformManifest()));
 app.get("/docs", (_q,res)=>{ const paths={}; for (const svc of SERVICES) for (const ep of svc.endpoints) { const u=`${svc.url}${ep.path}`; paths[u]={[ep.method.toLowerCase()]:{summary:ep.description,service:svc.name,category:svc.category,price:ep.price,payment:"x402 USDC on Base",payTo:ep.payTo,requestBody:ep.body}}; } res.json({openapi:"3.0.0",info:{title:"Royal Agentic Enterprises — x402 API Platform",version:"2.0.0",description:PLATFORM.tagline,contact:{email:PLATFORM.contact}},servers:SERVICES.map((s)=>({url:s.url,description:s.name})),paths}); });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`royal-gateway-x402 on :${PORT} — ${SERVICES.length} services, ${PLATFORM.total_endpoints} endpoints, payTo ${PAY_TO.join(',')}`));
