@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-18T04:20Z",
+  "generated_utc": "2026-09-21T03:20Z",
   "payTo": [
     "0x7861db4efc14a1ed5dd8c96c528a3796560f1393"
   ],
@@ -145,8 +145,8 @@
         {
           "method": "POST",
           "path": "/api/law-lookup",
-          "price": "$0.05",
-          "amount_atoms": "50000",
+          "price": "$0.25",
+          "amount_atoms": "250000",
           "network": "eip155:8453",
           "payTo": "0x7861db4efc14a1ed5dd8c96c528a3796560f1393",
           "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -450,15 +450,15 @@
       "slug": "sentry-forge",
       "url": "https://sentry-forge-x402.fly.dev",
       "category": "Security / Web3",
-      "description": "Pay $0.50 USDC, get an 8-file dispute pack: collector letter, OC letter, CFPB complaints, bureau disputes, court records search, action checklist, evidence inventory.",
+      "description": "Pay $5.00 USDC, get an 8-file dispute pack: collector letter, OC letter, CFPB complaints, bureau disputes, court records search, action checklist, evidence inventory.",
       "openapi": "https://sentry-forge-x402.fly.dev/openapi.json",
       "wellknown": "https://sentry-forge-x402.fly.dev/.well-known/x402",
       "endpoints": [
         {
           "method": "POST",
           "path": "/api/dispute-pack",
-          "price": "$0.50",
-          "amount_atoms": "500000",
+          "price": "$5.00",
+          "amount_atoms": "5000000",
           "network": "eip155:8453",
           "payTo": "0x7861db4efc14a1ed5dd8c96c528a3796560f1393",
           "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -549,23 +549,5 @@
       ]
     }
   ],
-  "drift_notes": {
-    "last_verification": {
-      "utc": "2026-09-18T03:30Z",
-      "method": "live 402-challenge decode, all 24 endpoints",
-      "result": "24/24 correct network eip155:8453 + canonical payTo + catalog price; 0 drift",
-      "price_drift_entries_retired": 12
-    },
-    "payment_semantics": {
-      "note": "400/404 pre-payment on invalid schema is intentional and NOT a leak (buyer never charged); confirmed tradingagents x2, suprapack get-skill.",
-      "verified": "2026-09-18"
-    },
-    "removed_stale_entries": [
-      {
-        "url": "https://rae-monetization-gateway.fly.dev",
-        "reason": "GET /healthz is free, non-catalog product gateway",
-        "removed": "2026-09-18"
-      }
-    ]
-  }
+  "drift_notes": "2026-09-21T03:20Z: sentry-forge/royal-ruby prices synced to live 402 challenges (decoded 2x 2026-09-20 + charter 09-17); other endpoints re-checked, no drift."
 }
