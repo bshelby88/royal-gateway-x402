@@ -5,7 +5,7 @@ const express = require("express");
 const app = express();
 
 const CATALOG = {
-  "generated_utc": "2026-09-18T04:20Z",
+  "generated_utc": "2026-09-21T03:20Z",
   "payTo": [
     "0x7861db4efc14a1ed5dd8c96c528a3796560f1393"
   ],
@@ -151,8 +151,8 @@ const CATALOG = {
         {
           "method": "POST",
           "path": "/api/law-lookup",
-          "price": "$0.05",
-          "amount_atoms": "50000",
+          "price": "$0.25",
+          "amount_atoms": "250000",
           "network": "eip155:8453",
           "payTo": "0x7861db4efc14a1ed5dd8c96c528a3796560f1393",
           "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -456,15 +456,15 @@ const CATALOG = {
       "slug": "sentry-forge",
       "url": "https://sentry-forge-x402.fly.dev",
       "category": "Security / Web3",
-      "description": "Pay $0.50 USDC, get an 8-file dispute pack: collector letter, OC letter, CFPB complaints, bureau disputes, court records search, action checklist, evidence inventory.",
+      "description": "Pay $5.00 USDC, get an 8-file dispute pack: collector letter, OC letter, CFPB complaints, bureau disputes, court records search, action checklist, evidence inventory.",
       "openapi": "https://sentry-forge-x402.fly.dev/openapi.json",
       "wellknown": "https://sentry-forge-x402.fly.dev/.well-known/x402",
       "endpoints": [
         {
           "method": "POST",
           "path": "/api/dispute-pack",
-          "price": "$0.50",
-          "amount_atoms": "500000",
+          "price": "$5.00",
+          "amount_atoms": "5000000",
           "network": "eip155:8453",
           "payTo": "0x7861db4efc14a1ed5dd8c96c528a3796560f1393",
           "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
