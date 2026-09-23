@@ -79,6 +79,44 @@ function registerPublicDiscovery(app, config) {
   app.get("/pricing.md", (_req, res) => {
     res.type("text/markdown").send(`${pricing.join("\n")}\n`);
   });
+
+  // EXEC-40: free GET /sample — machine-readable demonstration of the x402
+  // pay-per-call shape offered through this catalog, generated from the SAME
+  // SERVICES/PLATFORM constants as /llms.txt, /pricing.md and the manifest.
+  app.get("/sample", (_req, res) => {
+    const firstSvc = SERVICES[0];
+    const firstEp = firstSvc && firstSvc.endpoints[0];
+    res.json({
+      ok: true,
+      free: true,
+      service: `${PLATFORM.name} x402 platform gateway`,
+      note: "Synthetic demonstration of how a paid catalog call looks; example values are fake, not real results.",
+      catalog: {
+        services: PLATFORM.total_services,
+        endpoints: PLATFORM.total_endpoints,
+        price_range: PLATFORM.price_range,
+        network: PLATFORM.network,
+        payTo_wallets: PLATFORM.payTo_wallets,
+      },
+      example_request: firstEp ? { endpoint: `${firstEp.method} ${firstSvc.url}${firstEp.path}`, price: firstEp.price, body: firstEp.body } : null,
+      example_response: firstEp ? {
+        paid_flow: [
+          `1. POST ${firstSvc.url}${firstEp.path} without payment -> HTTP 402 with base64 payment-required header (x402 v2 challenge)`,
+          `2. Sign a USDC transfer on ${networkLabel(PLATFORM.network)} for the exact challenge amount to the challenge payTo`,
+          "3. Re-send with the payment signature header -> HTTP 200 with the service result JSON",
+          "4. Each wall's own /sample endpoint shows its concrete response shape, free",
+        ],
+        result_shape_note: "Response bodies are defined by the individual wall; see the wall's OpenAPI or /sample.",
+      } : null,
+      machine_contract: {
+        x402_manifest: `${baseUrl}/.well-known/x402.json`,
+        openapi_catalog: `${baseUrl}/docs`,
+        live_status: `${baseUrl}/services`,
+        pricing: `${baseUrl}/pricing.md`,
+        llms: `${baseUrl}/llms.txt`,
+      },
+    });
+  });
 }
 
 module.exports = { registerPublicDiscovery };
