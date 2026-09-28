@@ -696,7 +696,7 @@ function agentCardJson(req) {
     version: "2.0.0",
     protocolVersion: "1.0",
     url: gatewayCardUrl(req),
-    supportedInterfaces: [{ url: gatewayCardUrl(req), transport: "JSONRPC" }],
+    supportedInterfaces: [{ url: gatewayCardUrl(req), transport: "JSONRPC", protocolBinding: "JSONRPC", protocolVersion: "1.0" }],
     preferredTransport: "JSONRPC",
     provider: { organization: "Royal Agentic Enterprises", url: "https://royal-gateway-x402.fly.dev" },
     documentationUrl: "https://royal-gateway-x402.fly.dev/pricing.md",
