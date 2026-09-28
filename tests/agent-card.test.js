@@ -43,6 +43,7 @@ async function main() {
     check('name + description', typeof card.name === 'string' && card.name.length > 3 && typeof card.description === 'string' && card.description.length > 20);
     check('card url is https /a2a', /^https:\/\//.test(card.url || '') && /\/a2a$/.test(card.url || ''), card.url);
     check('supportedInterfaces bonus present', Array.isArray(card.supportedInterfaces) && card.supportedInterfaces.length >= 1 && card.supportedInterfaces[0].transport === 'JSONRPC');
+    check('v1 AgentInterface protocolBinding present (REQUIRED by a2a v1 proto; SDK transport matching fails without it)', card.supportedInterfaces[0].protocolBinding === 'JSONRPC' && card.supportedInterfaces[0].protocolVersion === '1.0');
     check('preferredTransport JSONRPC', card.preferredTransport === 'JSONRPC');
     check('provider = Royal Agentic Enterprises', card.provider && card.provider.organization === 'Royal Agentic Enterprises');
     check('documentationUrl = live /pricing.md', card.documentationUrl === 'https://royal-gateway-x402.fly.dev/pricing.md');
