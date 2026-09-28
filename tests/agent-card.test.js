@@ -72,8 +72,10 @@ async function main() {
     check('guide text names counts + treasury + cheapest', /\d+ services/.test(v03.body.result.parts[0].text) && v03.body.result.parts[0].text.includes(PAY_TO[0]) && /Cheapest live endpoint/.test(v03.body.result.parts[0].text));
     check('guide metadata declares free + x402 payTo', v03.body.result.metadata.free === true && v03.body.result.metadata.x402.payTo === PAY_TO[0] && v03.body.result.metadata.x402.network === 'eip155:8453');
 
-    const v1 = await rpc({ jsonrpc: '2.0', id: 'a', method: 'SendMessage', params: { message: { kind: 'message', role: 'user', messageId: 'm2', parts: [{ kind: 'text', text: 'cheapest way to generate an image?' }] } } });
+    const v1 = await rpc({ jsonrpc: '2.0', id: 'a', method: 'SendMessage', params: { message: { parts: [{ text: 'cheapest way to generate an image?' }] } } });
     check('v1.0 SendMessage -> 200 result', v1.status === 200 && v1.body.result && v1.body.id === 'a');
+    check('v1 protojson negotiation: ROLE_AGENT + bare parts', v1.body.result.role === 'ROLE_AGENT' && v1.body.result.kind === undefined && v1.body.result.parts[0].kind === undefined && typeof v1.body.result.parts[0].text === 'string');
+    check('bare-text inbound parts parsed', /nanobanana/i.test(v1.body.result.parts[0].text));
     check('keyword routing adds catalog match', /Matched:/.test(v1.body.result.parts[0].text) && /NanoBanana/.test(v1.body.result.parts[0].text), v1.body.result.parts[0].text.slice(-200));
 
     const nftQ = await rpc({ jsonrpc: '2.0', id: 9, method: 'SendMessage', params: { message: { parts: [{ kind: 'text', text: 'NFT floor and OpenSea collections' }] } } });
