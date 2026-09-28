@@ -631,5 +631,152 @@ require("./public-discovery").registerPublicDiscovery(app, {
   SERVICES,
 });
 app.get("/docs", (_q,res)=>{ const paths={}; for (const svc of SERVICES) for (const ep of svc.endpoints) { const u=`${svc.url}${ep.path}`; paths[u]={[ep.method.toLowerCase()]:{summary:ep.description,service:svc.name,category:svc.category,price:ep.price,payment:"x402 USDC on Base",payTo:ep.payTo,requestBody:ep.body}}; } res.json({openapi:"3.0.0",info:{title:"Royal Agentic Enterprises — x402 API Platform",version:"2.0.0",description:PLATFORM.tagline,contact:{email:PLATFORM.contact}},servers:SERVICES.map((s)=>({url:s.url,description:s.name})),paths}); });
+// ---------------------------------------------------------------------------
+// AGENSTRY-W1 cycle-6 (recO9y9mCEnExkp3W, 2026-09-28) — A2A v1.0 agent card +
+// free JSON-RPC SendMessage surface for the platform catalog gateway.
+// Proven playbook from rae-fleet-router PR #6 (merged 2a81afba, CI green,
+// live-verified as the sole Agenstry indexing fix): directories crawl
+// /.well-known/agent-card.json and negotiate SendMessage on the card url.
+// royal-gateway-x402 is the fleet CATALOG host — the row upstream awesome-x402
+// PR #1631 links and the provider.url every other wall points at — so a card
+// here is the highest-leverage replication target.
+// Money-safety: this app has NO payment middleware at all; every route below
+// (and above) is free by construction, calls no paid downstream service, and
+// moves zero money. All numbers are DERIVED from the same generated catalog
+// (SERVICES/PLATFORM/CATALOG) that feeds /pricing.md and /.well-known/x402.json
+// — no literals that could drift. The live 402 challenges remain authoritative.
+// ---------------------------------------------------------------------------
+function gatewayCardUrl(req) {
+  // Production is TLS-only behind Fly; advertise https even on local http probes.
+  return `https://${req.get("host") || "royal-gateway-x402.fly.dev"}/a2a`;
+}
+function catalogStats() {
+  const prices = SERVICES.flatMap((s) => s.endpoints.map((e) => ({ svc: s, ep: e, usd: parseFloat(String(e.price).replace("$", "")) })));
+  const min = prices.reduce((a, b) => (b.usd < a.usd ? b : a));
+  const max = prices.reduce((a, b) => (b.usd > a.usd ? b : a));
+  return { nServices: SERVICES.length, nEndpoints: prices.length, min, max };
+}
+function agentCardJson(req) {
+  const st = catalogStats();
+  const skills = [
+    {
+      id: "platform-catalog-guide", name: "Fleet catalog guide (free)",
+      description: `Ask this agent in plain text which ${st.nServices} Royal Agentic x402 services exist, what their ${st.nEndpoints} paid endpoints cost, and how to pay with x402 — answered free over A2A JSON-RPC, no payment, no downstream calls.`,
+      tags: ["catalog", "pricing", "discovery", "x402", "free", "agent-to-agent"],
+      examples: ["What fleet services can I buy with USDC on Base and what is the cheapest endpoint?"],
+    },
+    {
+      id: "cheapest-endpoint-finder", name: "Cheapest paid endpoint finder",
+      description: `Given a task (NFT floor data, image generation, email scoring, skill search, contract review...), returns the cheapest live catalog endpoint that fulfills it with its method+URL+price, derived from the same generated catalog as /pricing.md (currently ${st.min.svc.name} ${st.min.ep.path} at ${st.min.ep.price}).`,
+      tags: ["pricing", "optimization", "x402", "usdc", "base"],
+      examples: ["Find the cheapest way to generate an image and to check an NFT floor price."],
+    },
+    {
+      id: "machine-readable-surfaces", name: "Machine-readable discovery surfaces",
+      description: "Guides agents to the gateway's free surfaces: / (full catalog JSON), /services (live health of every service), /categories, /pricing.md, /llms.txt, /sample, /docs (OpenAPI 3), /.well-known/x402.json (all 402 accepts keyed by absolute URL). All generated from one catalog source.",
+      tags: ["discovery", "openapi", "x402", "json", "free"],
+      examples: ["Where do I get the machine-readable list of every paid endpoint and its payTo?"],
+    },
+    {
+      id: "x402-payment-onboarding", name: "x402 payment onboarding (free)",
+      description: "Explains the 4-step x402 v2 flow: POST unpaid, decode the 402 PAYMENT-REQUIRED header, sign a USDC EIP-3009 transferWithAuthorization on Base, resend with PAYMENT-SIGNATURE. Names the canonical treasury and USDC contract from the catalog.",
+      tags: ["x402", "usdc", "eip-3009", "onboarding", "base"],
+      examples: ["How do I pay a 402 challenge with USDC on Base from an agent?"],
+    },
+    {
+      id: "endpoint-health-probe", name: "Fleet availability status",
+      description: "Summarizes live service health: GET /services pings every catalog member's /health with a 5s timeout and reports healthy/error/unreachable per service.",
+      tags: ["health", "uptime", "observability", "x402", "free"],
+      examples: ["Which fleet services are reachable right now?"],
+    },
+  ];
+  return {
+    name: "Royal Agentic Enterprises — x402 Platform Gateway",
+    description: `Royal Agentic Enterprises x402 platform catalog: ${st.nServices} live paid services and ${st.nEndpoints} endpoints discoverable in one place (USDC on Base, per-call, no API keys, ${st.min.ep.price}–${st.max.ep.price}). The gateway itself is free: catalog, machine pricing, OpenAPI, A2A guidance. Live machine-readable pricing: /.well-known/x402.json.`,
+    version: "2.0.0",
+    protocolVersion: "1.0",
+    url: gatewayCardUrl(req),
+    supportedInterfaces: [{ url: gatewayCardUrl(req), transport: "JSONRPC" }],
+    preferredTransport: "JSONRPC",
+    provider: { organization: "Royal Agentic Enterprises", url: "https://royal-gateway-x402.fly.dev" },
+    documentationUrl: "https://royal-gateway-x402.fly.dev/pricing.md",
+    capabilities: {
+      streaming: false,
+      pushNotifications: false,
+      stateTransitionHistory: false,
+      extensions: [
+        { uri: "https://x402.org", description: `x402 v2 payment gating across the catalog: USDC (eip155:8453, contract 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913), scheme exact, payTo treasury ${PAY_TO[0]}. The live 402 challenge on each service is authoritative.`, required: false },
+      ],
+    },
+    defaultInputModes: ["application/json", "text/plain"],
+    defaultOutputModes: ["application/json", "text/plain"],
+    skills,
+    securitySchemes: {},
+    security: [],
+  };
+}
+function a2aGuideText() {
+  const st = catalogStats();
+  const byCat = PLATFORM.categories.map((c) => {
+    const svcs = SERVICES.filter((s) => s.category === c);
+    return `- ${c}: ${svcs.map((s) => `${s.name} (${s.endpoints.map((e) => `${e.method} ${e.path} ${e.price}`).join(", ")})`).join("; ")}`;
+  }).join("\n");
+  return `Royal Agentic Enterprises x402 platform (${st.nServices} services, ${st.nEndpoints} paid endpoints, ${PLATFORM.price_range}, USDC on Base eip155:8453, treasury ${PAY_TO[0]}). Cheapest live endpoint: ${st.min.svc.name} ${st.min.ep.path} at ${st.min.ep.price}. Categories:\n${byCat}\nFree machine-readable surfaces: GET /pricing.md, /llms.txt, /sample, /docs (OpenAPI 3), /services (live health), /.well-known/x402.json (all accepts). To buy anything: POST the endpoint unpaid, decode the 402 PAYMENT-REQUIRED header, sign a USDC EIP-3009 transferWithAuthorization, resend with PAYMENT-SIGNATURE. The live 402 challenge is authoritative — prices there beat this text. This gateway itself is free and moves no money.`;
+}
+function a2aKeywordHint(lower) {
+  const hits = [];
+  const st = catalogStats();
+  for (const svc of SERVICES) {
+    const key = `${svc.name} ${svc.slug} ${svc.category} ${svc.description}`.toLowerCase();
+    const want = /nft|opensea|collection/.test(lower) ? /nft|opensea/ :
+      /image|picture|generate/.test(lower) ? /image|creative|banana/ :
+      /email|outreach|subject|scor/.test(lower) ? /email|power pack|outreach/ :
+      /skill|claude code|hermes/.test(lower) ? /skill|suprapack/ :
+      /contract|legal|dispute|escrow/.test(lower) ? /legal|contract|dispute|escrow|compliance/ :
+      /price|cost|cheapest/.test(lower) ? null :
+      /trading|market|token/.test(lower) ? /analytics|trading|finance/ : null;
+    if (want && want.test(key)) hits.push(`${svc.name} — ${svc.endpoints.map((e) => `${e.method} ${svc.url}${e.path} ${e.price}`).join(", ")}`);
+  }
+  if (lower.includes("cheapest")) hits.unshift(`Cheapest paid endpoint in the catalog: ${st.min.svc.name} ${st.min.ep.method} ${st.min.ep.path} (${st.min.ep.price}).`);
+  return hits.length ? `\n\nMatched: ${hits.slice(0, 4).join(" | ")}` : "";
+}
+app.get(["/.well-known/agent-card.json", "/.well-known/agent.json"], (req, res) => {
+  res.set("Cache-Control", "public, max-age=60");
+  res.json(agentCardJson(req));
+});
+app.post("/a2a", express.json({ limit: "64kb" }), (req, res) => {
+  const b = req.body || {};
+  const id = b.id !== undefined ? b.id : null;
+  if (b.jsonrpc !== "2.0" || typeof b.method !== "string") {
+    return res.json({ jsonrpc: "2.0", id, error: { code: -32600, message: "Invalid Request: expected JSON-RPC 2.0 with a method string" } });
+  }
+  if (b.method === "SendMessage" || b.method === "message/send" || b.method === "tasks/send") {
+    const userText = (((b.params || {}).message || {}).parts || [])
+      .filter((p) => p && p.kind === "text" && typeof p.text === "string")
+      .map((p) => p.text).join(" ").slice(0, 500);
+    const lower = userText.toLowerCase();
+    let answer = a2aGuideText();
+    answer += a2aKeywordHint(lower);
+    return res.json({
+      jsonrpc: "2.0", id,
+      result: {
+        kind: "message", role: "agent", messageId: `r-${Date.now()}`,
+        parts: [{ kind: "text", text: answer }],
+        metadata: { free: true, x402: { network: "eip155:8453", asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", payTo: PAY_TO[0], manifest: "/.well-known/x402.json" } },
+      },
+    });
+  }
+  if (b.method === "GetAgentCard") {
+    return res.json({ jsonrpc: "2.0", id, result: agentCardJson(req) });
+  }
+  return res.json({ jsonrpc: "2.0", id, error: { code: -32601, message: "Method not found: supported are SendMessage (v1), message/send (v0.3), GetAgentCard" } });
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`royal-gateway-x402 on :${PORT} — ${SERVICES.length} services, ${PLATFORM.total_endpoints} endpoints, payTo ${PAY_TO.join(',')}`));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`royal-gateway-x402 on :${PORT} — ${SERVICES.length} services, ${PLATFORM.total_endpoints} endpoints, payTo ${PAY_TO.join(',')}`));
+}
+
+// Exported for tests/agent-card.test.js (AGENSTRY-W1 cycle-6 acceptance) and
+// tests/sample-route.test.js — listening only under `node index.js` (Docker CMD).
+module.exports = { app, SERVICES, PLATFORM, PAY_TO, agentCardJson, catalogStats };
