@@ -75,12 +75,12 @@ async function main() {
 
     const v1 = await rpc({ jsonrpc: '2.0', id: 'a', method: 'SendMessage', params: { message: { parts: [{ text: 'cheapest way to generate an image?' }] } } });
     check('v1.0 SendMessage -> 200 result', v1.status === 200 && v1.body.result && v1.body.id === 'a');
-    check('v1 protojson negotiation: ROLE_AGENT + bare parts', v1.body.result.role === 'ROLE_AGENT' && v1.body.result.kind === undefined && v1.body.result.parts[0].kind === undefined && typeof v1.body.result.parts[0].text === 'string');
-    check('bare-text inbound parts parsed', /nanobanana/i.test(v1.body.result.parts[0].text));
-    check('keyword routing adds catalog match', /Matched:/.test(v1.body.result.parts[0].text) && /NanoBanana/.test(v1.body.result.parts[0].text), v1.body.result.parts[0].text.slice(-200));
+    check('v1 protojson SendMessageResponse: result.message{ROLE_AGENT, bare parts}', v1.body.result.message && v1.body.result.message.role === 'ROLE_AGENT' && v1.body.result.kind === undefined && v1.body.result.message.parts[0].kind === undefined && typeof v1.body.result.message.parts[0].text === 'string');
+    check('bare-text inbound parts parsed', /nanobanana/i.test(v1.body.result.message.parts[0].text));
+    check('keyword routing adds catalog match', /Matched:/.test(v1.body.result.message.parts[0].text) && /NanoBanana/.test(v1.body.result.message.parts[0].text), v1.body.result.message.parts[0].text.slice(-200));
 
     const nftQ = await rpc({ jsonrpc: '2.0', id: 9, method: 'SendMessage', params: { message: { parts: [{ kind: 'text', text: 'NFT floor and OpenSea collections' }] } } });
-    check('nft keyword hits NFT Alpha / OpenSea data', /NFT Alpha|OpenSea/.test(nftQ.body.result.parts[0].text));
+    check('nft keyword hits NFT Alpha / OpenSea data', /NFT Alpha|OpenSea/.test(nftQ.body.result.message.parts[0].text));
 
     const gc = await rpc({ jsonrpc: '2.0', id: 3, method: 'GetAgentCard', params: {} });
     check('GetAgentCard returns the card', gc.status === 200 && gc.body.result && gc.body.result.protocolVersion === '1.0' && Array.isArray(gc.body.result.skills));
